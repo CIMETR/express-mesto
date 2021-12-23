@@ -20,7 +20,7 @@ const cardSchema = new Schema({
     required: true,
   },
   owner: {
-    type: Object,
+    type: Schema.Types.ObjectId,
     required: true,
   },
 });

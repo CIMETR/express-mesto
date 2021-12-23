@@ -14,6 +14,8 @@ const getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+      } else if (err.name === 'NotFound') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
       }
@@ -44,6 +46,8 @@ const updateUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      } else if (err.name === 'NotFound') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
       }
@@ -60,6 +64,8 @@ const updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      } else if (err.name === 'NotFound') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
       }
