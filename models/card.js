@@ -14,6 +14,7 @@ const cardSchema = new Schema({
   likes: [{
     type: Schema.Types.ObjectId,
     default: [],
+    ref: 'user',
   }],
   link: {
     type: String,
@@ -22,6 +23,7 @@ const cardSchema = new Schema({
   owner: {
     type: Schema.Types.ObjectId,
     required: true,
+    ref: 'user',
   },
 });
 

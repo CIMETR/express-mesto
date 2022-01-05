@@ -25,7 +25,7 @@ const deleteCard = (req, res) => {
       if (err.message === 'NotFound') {
         res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       } else if (err.name === 'CastError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Недостаточно прав' });
+        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
       }
@@ -53,11 +53,13 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .orFail()
+    .orFail(new Error('NotFound'))
     .then((likes) => res.send({ data: likes }))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
+      } else if (err.message === 'NotFound') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
       }
@@ -70,11 +72,13 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .orFail()
+    .orFail(new Error('NotFound'))
     .then((likes) => res.send({ data: likes }))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные для снятия лайка' });
+      } else if (err.message === 'NotFound') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
       } else {
         res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
       }
