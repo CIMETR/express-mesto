@@ -1,13 +1,20 @@
 {
-  "name": "mesto-react",
+  "name": "express-mesto",
   "version": "0.1.0",
-  "homepage": "https://github.com/CIMETR/express-mesto",
   "private": true,
+  "main": "app.js",
   "dependencies": {
-    "body-parser": "^1.19.1",
-    "express": "^4.17.2",
-    "mongoose": "^6.1.2",
-    "react": "^17.0.2"
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.0",
+    "celebrate": "^15.0.0",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "express-winston": "^4.1.0",
+    "helmet": "^4.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.13.2",
+    "validator": "^13.6.0",
+    "winston": "^3.3.3"
   },
   "scripts": {
     "start": "node app.js",
@@ -15,9 +22,9 @@
     "lint": "npx eslint --fix --ext .js ."
   },
   "devDependencies": {
-    "eslint": "^8.5.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.25.3",
-    "nodemon": "^2.0.15"
+    "eslint": "^7.30.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.4",
+    "nodemon": "^2.0.9"
   }
 }

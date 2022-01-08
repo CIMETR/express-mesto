@@ -1,38 +1,35 @@
 const Card = require('../models/card');
-const { ERR_BAD_REQUEST, ERR_DEFAULT, ERR_NOT_FOUND } = require('../errors/errors');
+const BadRequest = require('../errors/BadRequest');
+const NotFound = require('../errors/NotFound');
+const Forbidden = require('../errors/Forbidden');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' }));
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
-  const { userId } = req.user;
-  const { cardId } = req.params;
+const deleteCard = (req, res, next) => {
+  const userId = req.user._id;
+  const { _id } = req.params;
 
-  Card.findById(cardId)
-    .orFail(new Error('NotFound'))
+  Card.findById(_id)
+    .orFail()
+    .catch(() => {
+      throw new NotFound('Карточка с таким id не найдена');
+    })
     .then((card) => {
-      if (card.owner._id === userId) {
-        Card.findByIdAndRemove(cardId)
+      if (card.owner.toString() === userId) {
+        Card.findByIdAndRemove(_id)
           .then((cardData) => res.send(cardData));
       } else {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Недостаточно прав' });
+        throw new Forbidden('Недостаточно прав!');
       }
     })
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
-      } else if (err.name === 'CastError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
-      }
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -40,49 +37,36 @@ const createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки' });
-      } else {
-        res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
+        throw new BadRequest(err.message);
       }
-    });
+    })
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params._id,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .orFail(new Error('NotFound'))
+    .orFail(() => {
+      throw new NotFound('Карточка с таким id не найдена');
+    })
     .then((likes) => res.send({ data: likes }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
-      } else if (err.message === 'NotFound') {
-        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
-      } else {
-        res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
-      }
-    });
+    .catch(next);
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params._id,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .orFail(new Error('NotFound'))
+    .orFail(() => {
+      throw new NotFound('Карточка с таким id не найдена');
+    })
     .then((likes) => res.send({ data: likes }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные для снятия лайка' });
-      } else if (err.message === 'NotFound') {
-        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с таким id не найден' });
-      } else {
-        res.status(ERR_DEFAULT).send({ message: 'Произошла ошибка' });
-      }
-    });
+    .catch(next);
 };
 
 module.exports = {
